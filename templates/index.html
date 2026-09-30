@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Colour Palette Extractor</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 1.5rem; }
+        .swatch { border-radius: 8px; overflow: hidden; border: 1px solid #ddd; cursor: pointer; }
+        .swatch .color { height: 100px; }
+        .swatch .hex { padding: 8px; text-align: center; font-family: monospace; }
+        .swatch.copied .hex { background: #d4f5d4; }
+        .error { color: #c0392b; }
+        .preview { display: block; max-width: 100%; max-height: 300px; margin-top: 1.5rem; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Colour Palette Extractor</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Extract colours</button>
+    </form>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if colors %}
+      {% if image_data %}
+    <img class="preview" src="data:image/jpeg;base64,{{ image_data }}" alt="Uploaded image">
+{% endif %}
+        <div class="palette">
+            {% for c in colors %}
+                <div class="swatch" onclick="copyHex('{{ c }}', this)">
+                    <div class="color" style="background-color: {{ c }};"></div>
+                    <div class="hex">{{ c }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <script>
+        function copyHex(hex, el) {
+            navigator.clipboard.writeText(hex).then(() => {
+                const label = el.querySelector(".hex");
+                const original = label.textContent;
+                label.textContent = "Copied!";
+                el.classList.add("copied");
+                setTimeout(() => {
+                    label.textContent = original;
+                    el.classList.remove("copied");
+                }, 1000);
+            });
+        }
+    </script>
+</body>
+</html>
